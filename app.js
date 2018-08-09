@@ -54,6 +54,7 @@ var db = mysql.createConnection({
 
 
 //Pour tester Mysql
+/*
 db.query('SELECT * from reservation', function (error, results, fields) {
     if (error) {
       console.log(JSON.stringify(error));
@@ -61,7 +62,7 @@ db.query('SELECT * from reservation', function (error, results, fields) {
       console.log(JSON.stringify(results));
     }
   });
-
+*/
 
 //message de l'app nodejs à Watson et inversement
 function callWatson(payload, sender) {
