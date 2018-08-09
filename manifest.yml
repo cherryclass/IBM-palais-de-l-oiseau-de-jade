@@ -2,8 +2,8 @@ applications:
 - path: .
   memory: 256M
   instances: 1
-  name: palais-de-l-oiseau-de-jade-nodejs
-  route: palais-de-l-oiseau-de-jade-nodejs.eu-de.mybluemix.net
+  name: palais-de-l-oiseau-de-jade
+  route: palais-de-l-oiseau-de-jade-${random-word}
   services:
   - palais de l oiseau de jade - Watson Assistant
   - palais de l oiseau de jade - Mysql
