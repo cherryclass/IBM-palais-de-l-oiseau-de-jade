@@ -1,6 +1,6 @@
 applications:
 - path: .
-  memory: 256M
+  memory: 512M
   instances: 1
   name: palais-de-l-oiseau-de-jade
   route: palais-de-l-oiseau-de-jade-${random-word}
