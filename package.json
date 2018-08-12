@@ -6,16 +6,16 @@
 		"start": "node app.js"
 	},
 	"dependencies": {
-		"express": "4.15.x",
-		"cfenv": "1.0.x",
+		"express": "4.*",
+		"cfenv": "1.*",
 		"body-parser": "1.*",
 		"request": "2.*",
 		"htmlparser": "1.*",
-		"watson-developer-cloud": "2.*",
-		"mysql": "*"
+		"watson-developer-cloud": "3.*",
+		"mysql": "2.*"
 	},
 	"repository": {},
 	"engines": {
-		"node": "8.x"
+		"node": "10.*"
 	} 
 }
