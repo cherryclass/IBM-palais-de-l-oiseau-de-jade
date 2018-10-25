@@ -6,5 +6,5 @@ applications:
   routes: 
     - route: palais-de-l-oiseau-de-jade-${random-word}.eu-de.mybluemix.net
   services:
-  - palais de l oiseau de jade - Watson Assistant
-  - palais de l oiseau de jade - Mysql
+  - palais de l oiseau de jade Watson Assistant
+  - palais de l oiseau de jade Mysql
