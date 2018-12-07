@@ -1,8 +1,7 @@
 applications:
 - name: palais-de-l-oiseau-de-jade-nodejs
   memory: 512M
-  routes: 
-    - route: palais-de-l-oiseau-de-jade-${random}.eu-de.mybluemix.net
+  random-route: true
   services:
   - palais de l oiseau de jade Watson Assistant
   - palais de l oiseau de jade Mysql
