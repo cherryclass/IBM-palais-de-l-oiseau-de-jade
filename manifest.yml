@@ -1,8 +1,6 @@
 applications:
-- path: .
+- name: palais-de-l-oiseau-de-jade-nodejs
   memory: 512M
-  instances: 1
-  name: palais-de-l-oiseau-de-jade
   routes: 
     - route: palais-de-l-oiseau-de-jade-${random}.eu-de.mybluemix.net
   services:
