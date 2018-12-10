@@ -182,8 +182,6 @@ app.post('/webhook/', function (req, res) {
 });
 app.get('/', function (req, res) {
     res.json("Votre application fonctionne");
-    res.sendStatus(200);
-
 });
 
 app.listen(port, host);
