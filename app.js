@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
-var watson = require('watson-developer-cloud');
+var AssistantV2 = require('watson-developer-cloud/assistant/v2');
 var mysql  = require('mysql');
 
 
@@ -19,13 +19,16 @@ var myUrl = process.env.CONVERSATION_URL;
 var app = express();
 var contexid = "";
 
-var conversation = new watson.ConversationV1({
- 	version: 'v1',
-    username: myUsername,
-    password: myPassword,
-    url: myUrl,
-    version_date:'2018-08-07'
+
+// Assistant Watson
+var assistant = new AssistantV2({
+  version: '2018-07-10',
+  username: myUsername,
+  password: myPassword,
+  url: myUrl,
+  version_date:'2018-08-07'
 });
+
 
 //Pour tester un appel simple de Watson Assistant
 /*conversation.message({
@@ -39,7 +42,7 @@ var conversation = new watson.ConversationV1({
 });
 */
 
-
+// Mysql
 var services = JSON.parse(process.env.VCAP_SERVICES);
 var mysql_creds = services['compose-for-mysql'][0].credentials;
 var res = mysql_creds.uri.split(/\@|:|\//);
@@ -66,27 +69,27 @@ db.query('SELECT * from reservation', function (error, results, fields) {
 
 //message de l'app nodejs à Watson et inversement
 function callWatson(payload, sender) {
-	conversation.message(payload, function (err, convResults) {
-		 console.log(convResults);
+	assistant.message(payload, function (err, data) {
+		 console.log(data);
 
         //message de Watson
-		contexid = convResults.context;
+		contexid = data.context;
 		
         if (err) {       	
             sendMessage(sender, "erreur du service");
             return responseToRequest.send("Error.");
         }
 		
-		if(convResults.context != null)
-    	   conversation_id = convResults.context.conversation_id;
-        if(convResults != null && convResults.output != null){
+		if(data.context != null)
+    	   conversation_id = data.context.conversation_id;
+        if(data != null && data.output != null){
 
             //reservation
-            if(convResults.context.confirmation !=null){
+            if(data.context.confirmation !=null){
                 
-                var date_reservation= convResults.context.date_reservation;
-                var nb_chambres= convResults.context.nb_chambre;
-                var room_category= convResults.context.room_category;
+                var date_reservation= data.context.date_reservation;
+                var nb_chambres= data.context.nb_chambre;
+                var room_category= data.context.room_category;
                 var query='insert into reservation (idC,nbChambres,dateDebut,nbJour,categorie) values(null,'+nb_chambres+',"'+date_reservation+'",null,"'+room_category+'")';
                 db.query(query, function (error, results, fields) {
                 if (error) {
@@ -96,8 +99,8 @@ function callWatson(payload, sender) {
 
             }
 			var i = 0;
-			while(i < convResults.output.text.length){
-				sendMessage(sender, convResults.output.text[i++]);
+			while(i < data.output.text.length){
+				sendMessage(sender, data.output.text[i++]);
 			}
 		}
             
@@ -177,7 +180,11 @@ app.post('/webhook/', function (req, res) {
     }
     res.sendStatus(200);
 });
+app.get('/', function (req, res) {
+    res.json("Votre application fonctionne");
+    res.sendStatus(200);
 
+});
 
 app.listen(port, host);
 
