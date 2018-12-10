@@ -21,12 +21,12 @@ var contexid = "";
 
 
 // Assistant Watson
-var assistant = new AssistantV2({
-  version: '2018-07-10',
-  username: myUsername,
-  password: myPassword,
-  url: myUrl,
-  version_date:'2018-08-07'
+var assistant = new watson.ConversationV1({
+ 	version: 'v1',
+    username: myUsername,
+    password: myPassword,
+    url: myUrl,
+    version_date:'2018-08-07'
 });
 
 
