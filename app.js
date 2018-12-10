@@ -15,32 +15,20 @@ var port = (process.env.VCAP_APP_PORT || 3000);
 var myUsername = process.env.CONVERSATION_USERNAME;
 var myPassword = process.env.CONVERSATION_PASSWORD;
 var myUrl = process.env.CONVERSATION_URL;
-
 var app = express();
-var contexid = "";
 
-
-// Assistant Watson
-var assistant = new watson.ConversationV1({
- 	version: 'v1',
+// Assistant Watson V1
+var conversation = new watson.AssistantV1({
+    version :"2018-10-12",
     username: myUsername,
     password: myPassword,
     url: myUrl,
-    version_date:'2018-08-07'
+    
 });
 
+var contexid = "";
+var conversation_id = "";
 
-//Pour tester un appel simple de Watson Assistant
-/*conversation.message({
-  workspace_id: myWorkspace,
-  input: {'text': 'reservation'}
-},  function(err, response) {
-  if (err)
-    console.log('error:', err);
-  else
-    console.log(JSON.stringify(response, null, 2));
-});
-*/
 
 // Mysql
 var services = JSON.parse(process.env.VCAP_SERVICES);
@@ -56,41 +44,40 @@ var db = mysql.createConnection({
   });
 
 
-//Pour tester Mysql
-/*
-db.query('SELECT * from reservation', function (error, results, fields) {
-    if (error) {
-      console.log(JSON.stringify(error));
-    } else {
-      console.log(JSON.stringify(results));
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.get('/webhook/', function (req, res) {
+    if (req.query['hub.verify_token'] === myFacebookToken) {
+        res.send(req.query['hub.challenge']);
     }
-  });
-*/
+    res.send('Erreur de token');
+});
 
-//message de l'app nodejs à Watson et inversement
+
+
+//appel de Watson Assistant et insertion de la reservation dans Mysql. Puis appel de sendMessage pour envoie vers Messenger
 function callWatson(payload, sender) {
-	assistant.message(payload, function (err, data) {
-		 console.log(data);
-
-        //message de Watson
-		contexid = data.context;
-		
-        if (err) {       	
-            sendMessage(sender, "erreur du service");
-            return responseToRequest.send("Error.");
+    conversation.message(payload, function(err, data) {
+        console.log(data)
+        if (err)
+            return console.log('error:', err);
+        
+        if(data.context != null){
+            contexid = data.context;
+            conversation_id = data.context.conversation_id;
         }
-		
-		if(data.context != null)
-    	   conversation_id = data.context.conversation_id;
+
         if(data != null && data.output != null){
 
             //reservation
             if(data.context.confirmation !=null){
                 
+		//variables de context du chatbot
                 var date_reservation= data.context.date_reservation;
                 var nb_chambres= data.context.nb_chambre;
                 var room_category= data.context.room_category;
-                var query='insert into reservation (idC,nbChambres,dateDebut,nbJour,categorie) values(null,'+nb_chambres+',"'+date_reservation+'",null,"'+room_category+'")';
+		//requete d'insertion
+               var query='insert into reservation (idC,nbChambres,dateDebut,nbJour,categorie) values(null,'+nb_chambres+',"'+date_reservation+'",'+"null"+',"'+room_category+'")';
                 db.query(query, function (error, results, fields) {
                 if (error) {
                   console.log(JSON.stringify(error));
@@ -98,19 +85,19 @@ function callWatson(payload, sender) {
               });
 
             }
-			var i = 0;
-			while(i < data.output.text.length){
-				sendMessage(sender, data.output.text[i++]);
-			}
-		}
+            var i = 0;
+            while(i < data.output.text.length){
+                sendMessage(sender, data.output.text[i++]);
+            }
+        }
             
     });
 }
 
-//message de l'app à messenger
+//message de l'app à Messenger
 function sendMessage(sender, text_) {
-	text_ = text_.substring(0, 319);
-	messageData = {	text: text_ };
+    text_ = text_.substring(0, 319);
+    messageData = { text: text_ };
 
     request({
         url: 'https://graph.facebook.com/v3.1/me/messages',
@@ -130,59 +117,71 @@ function sendMessage(sender, text_) {
 }
 
 
-var conversation_id = "";
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
-app.get('/webhook/', function (req, res) {
-	if (req.query['hub.verify_token'] === myFacebookToken) {
-        res.send(req.query['hub.challenge']);
-    }
-    res.send('Erreur de token');
-});
-
-
-//message de messenger à l'app 
+//Reception de Messenger et appel de callWatson
 app.post('/webhook/', function (req, res) {
-	var text = null;
-	
-    messaging_events = req.body.entry[0].messaging;
-	for (i = 0; i < messaging_events.length; i++) {	
+    var text = null;
+     messaging_events = req.body.entry[0].messaging;
+    for (i = 0; i < messaging_events.length; i++) { 
         event = req.body.entry[0].messaging[i];
         sender = event.sender.id;
 
         if (event.message && event.message.text) {
-			text = event.message.text;
-		}else if (event.postback && !text) {
-			text = event.postback.payload;
-		}else{
-			break;
-		}
-		
-		var params = {
-			input: text,
-			context:contexid
-		}
+            text = event.message.text;
+        }else if (event.postback && !text) {
+            text = event.postback.payload;
+        }else{
+            break;
+        }        
+        var params = {
+            input: text,
+            context:contexid
+        }
+        var payload = {
+            workspace_id: myWorkspace,            
+            input: req.body.input || {}
+          };
+        if (params) {
+            if (params.input) {
+                params.input = params.input.replace("\n","");
+                payload.input = { "text": params.input };
+            }
+            if (params.context) {
+                payload.context = params.context;
 
-		var payload = {
-			workspace_id: myWorkspace
-		};
-
-		if (params) {
-			if (params.input) {
-				params.input = params.input.replace("\n","");
-				payload.input = { "text": params.input };
-			}
-			if (params.context) {
-				payload.context = params.context;
-			}
-		}
-		callWatson(payload, sender);
+            }
+        }
+        callWatson(payload, sender);
     }
     res.sendStatus(200);
 });
+
+
+
 app.get('/', function (req, res) {
     res.json("Votre application fonctionne");
 });
 
 app.listen(port, host);
 
+
+//Pour tester un appel simple de Watson Assistant
+/*conversation.message({
+  workspace_id: myWorkspace,
+  input: {'text': 'reservation'}
+},  function(err, response) {
+  if (err)
+    console.log('error:', err);
+  else
+    console.log(JSON.stringify(response, null, 2));
+});
+*/
+//Pour tester Mysql
+/*
+db.query('SELECT * from reservation', function (error, results, fields) {
+    if (error) {
+      console.log(JSON.stringify(error));
+    } else {
+      console.log(JSON.stringify(results));
+    }
+  });
+*/
