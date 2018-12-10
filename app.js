@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
-var AssistantV2 = require('watson-developer-cloud/assistant/v2');
+var watson = require('watson-developer-cloud/assistant/v2');
 var mysql  = require('mysql');
 
 
