@@ -147,6 +147,19 @@ app.post('/webhook/', function (req, res) {
             }
             if (params.context) {
                 payload.context = params.context;
+		 
+		if(payload.context.option !=null){
+		  //recherche dans la base le prix de l'option
+                 var query='select prix from option where libelle="'+payload.context.option+'")';
+                 db.query(query, function (error, results, fields) {
+                 if (error) {
+                  console.log(JSON.stringify(error));
+                 }
+		payload.context.prixoption = results;
+                });
+		}   
+		    
+		//nombre de chambre défini 
 		if(payload.context.nb_chambre !=null){
                     //montant de la chambre envoyé au chatbot
                     payload.context.total=100;
