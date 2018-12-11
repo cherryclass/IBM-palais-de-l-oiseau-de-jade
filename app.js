@@ -147,6 +147,10 @@ app.post('/webhook/', function (req, res) {
             }
             if (params.context) {
                 payload.context = params.context;
+		if(payload.context.nb_chambre !=null){
+                    //montant de la chambre envoyé au chatbot
+                    payload.context.total=100;
+                }
 
             }
         }
