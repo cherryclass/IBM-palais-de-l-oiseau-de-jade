@@ -3,5 +3,4 @@ applications:
   memory: 512M
   random-route: true
   services:
-  - palais de l oiseau de jade Watson Assistant
   - palais de l oiseau de jade Mysql
