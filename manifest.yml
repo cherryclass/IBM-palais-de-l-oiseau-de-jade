@@ -2,5 +2,3 @@ applications:
 - name: palais-de-l-oiseau-de-jade-nodejs
   memory: 512M
   random-route: true
-  services:
-  - palais de l oiseau de jade Mysql
