@@ -1,4 +1,4 @@
-CREATE DATABASE `poj` COLLATE 'utf8_general_ci';
+CREATE DATABASE if not exists `poj` COLLATE 'utf8_general_ci';
 USE `poj`;
 
 DROP TABLE IF EXISTS `reservation`;
