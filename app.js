@@ -7,6 +7,9 @@ var mysql  = require('mysql');
 
 //à remplacer **************************************
 var myWorkspace = "";
+var myRDSHost ="";
+var myRDSLogin ="";
+var myRDSPassword ="";
 var myFacebookToken ="";
 
 
@@ -30,16 +33,16 @@ var contexid = "";
 var conversation_id = "";
 
 
-// Mysql
+// Mysql - MariaDB
 var services = JSON.parse(process.env.VCAP_SERVICES);
-var mysql_creds = services['compose-for-mysql'][0].credentials;
-var res = mysql_creds.uri.split(/\@|:|\//);
+//var mysql_creds = services['compose-for-mysql'][0].credentials;
+//var res = mysql_creds.uri.split(/\@|:|\//);
 var db = mysql.createConnection({
-    host: res[5],
-    port : res[6],
-    user: "admin",
-    password: res[4],
-    database: "compose",
+    host: myRDSHost,
+    port : 3306,
+    user: myRDSLogin,
+    password: myRDSPassword,
+    database: "poj",
     debug: true
   });
 
