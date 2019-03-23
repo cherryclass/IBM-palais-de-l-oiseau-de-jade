@@ -6,7 +6,7 @@
 		"start": "node app.js"
 	},
 	"dependencies": {
-		"express": "4.*",
+		"express": ">=4.5.0",
 		"cfenv": "1.*",
 		"body-parser": "1.*",
 		"request": "2.*",
