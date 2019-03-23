@@ -6,26 +6,30 @@ var mysql  = require('mysql');
 
 
 //à remplacer **************************************
-var myWorkspace = "";
+var myWatsonWorkspace = "";
+var myWatsonPassword = "";
+var myWatsonUrl ="";
+
 var myRDSHost ="";
 var myRDSLogin ="";
 var myRDSPassword ="";
+
 var myFacebookToken ="";
 
 
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
-var myUsername = process.env.CONVERSATION_USERNAME;
+/*var myUsername = process.env.CONVERSATION_USERNAME;
 var myPassword = process.env.CONVERSATION_PASSWORD;
-var myUrl = process.env.CONVERSATION_URL;
+var myUrl = process.env.CONVERSATION_URL;*/
 var app = express();
 
 // Assistant Watson V1
 var conversation = new watson.AssistantV1({
     version :"2018-10-12",
-    username: myUsername,
-    password: myPassword,
-    url: myUrl,
+    username: "apikey",
+    password: myWatsonPassword,
+    url: myWatsonUrl,
     
 });
 
@@ -140,7 +144,7 @@ app.post('/webhook/', function (req, res) {
             context:contexid
         }
         var payload = {
-            workspace_id: myWorkspace,            
+            workspace_id: myWatsonWorkspace,            
             input: req.body.input || {}
           };
         if (params) {
