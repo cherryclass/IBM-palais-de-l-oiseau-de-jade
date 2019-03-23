@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="author" content="Luc Frébourg">
-    <title>ChatBot</title>
+    <title>Watson Assistant</title>
 
 
    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
@@ -20,7 +20,7 @@
     <header class="header" id="top">
         <div class="row justify-content-md-center">
             <div class="col-12 col-md-auto">
-                <h1>ChatBot </h1>
+                <h1>Watson Assistant</h1>
             </div>
         </div>
     </header>
@@ -54,12 +54,13 @@
     $(document).ready(function () {
     $('#envoyer').click(function () {
         let id = $('#id').val();
+         $('#reponse').prepend("User: "+id+"<br>")
         $.ajax({
             type: "POST",
             contentType: 'application/json; charset=utf-8',
             url: "/message?id=" + id,
             success: function (data) {
-                 $('#reponse').append(data+"<br>")
+                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data+"</span><br>")
             }
         });
     });
