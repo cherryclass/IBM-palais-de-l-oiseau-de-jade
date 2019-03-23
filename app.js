@@ -5,6 +5,7 @@ var watson = require('watson-developer-cloud');
 var mysql  = require('mysql');
 
 
+
 //à remplacer **************************************
 var myWatsonWorkspace = "";
 var myWatsonPassword = "";
@@ -180,10 +181,24 @@ app.post('/webhook/', function (req, res) {
 });
 
 
-
+/*
 app.get('/', function (req, res) {
     res.json("Votre application fonctionne");
+});*/
+
+app.post('/message', function (req, res) {
+    message= req.query.id;
+    res.json("Votre application fonctionne"+message);
 });
+
+var path = require('path');
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname + '/index.html'));
+});
+
+
+
 
 app.listen(port, host);
 
