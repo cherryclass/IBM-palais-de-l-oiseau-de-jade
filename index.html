@@ -52,15 +52,20 @@
 </footer>
 <script>
     $(document).ready(function () {
+    let context="";
     $('#envoyer').click(function () {
         let id = $('#id').val();
          $('#reponse').prepend("User: "+id+"<br>")
         $.ajax({
             type: "POST",
             contentType: 'application/json; charset=utf-8',
-            url: "/message?id=" + id,
+            url: "/message",
+            data: JSON.stringify({"input":{"text":id}, context}),
             success: function (data) {
-                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data+"</span><br>")
+                console.log(data)
+                 var rep=data;
+                 context=rep.context;
+                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data.output.text+"</span><br>")
             }
         });
     });
