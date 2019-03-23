@@ -9,7 +9,6 @@ var mysql  = require('mysql');
 //à remplacer **************************************
 var myWatsonWorkspace = "";
 var myWatsonPassword = "";
-var myWatsonUrl ="";
 
 var myRDSHost ="";
 var myRDSLogin ="";
@@ -18,6 +17,7 @@ var myRDSPassword ="";
 var myFacebookToken ="";
 
 
+var myWatsonUrl ="https://gateway-fra.watsonplatform.net/assistant/api";
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 /*var myUsername = process.env.CONVERSATION_USERNAME;
@@ -35,7 +35,6 @@ var conversation = new watson.AssistantV1({
 });
 
 var contexid = "";
-var conversation_id = "";
 
 
 // Mysql - MariaDB
@@ -63,6 +62,8 @@ app.get('/webhook/', function (req, res) {
 
 
 
+
+/* MESSENGER **************************************************************************************/
 //appel de Watson Assistant et insertion de la reservation dans Mysql. Puis appel de sendMessage pour envoie vers Messenger
 function callWatson(payload, sender) {
     conversation.message(payload, function(err, data) {
@@ -72,7 +73,7 @@ function callWatson(payload, sender) {
         
         if(data.context != null){
             contexid = data.context;
-            conversation_id = data.context.conversation_id;
+           
         }
 
         if(data != null && data.output != null){
@@ -80,11 +81,11 @@ function callWatson(payload, sender) {
             //reservation
             if(data.context.confirmation !=null){
                 
-		//variables de context du chatbot
+        //variables de context du chatbot
                 var date_reservation= data.context.date_reservation;
                 var nb_chambres= data.context.nb_chambre;
                 var room_category= data.context.room_category;
-		//requete d'insertion
+        //requete d'insertion
                var query='insert into reservation (idC,nbChambres,dateDebut,nbJour,categorie) values(null,'+nb_chambres+',"'+date_reservation+'",'+"null"+',"'+room_category+'")';
                 db.query(query, function (error, results, fields) {
                 if (error) {
@@ -98,6 +99,7 @@ function callWatson(payload, sender) {
                 sendMessage(sender, data.output.text[i++]);
             }
         }
+
             
     });
 }
@@ -155,20 +157,20 @@ app.post('/webhook/', function (req, res) {
             }
             if (params.context) {
                 payload.context = params.context;
-		 
-		if(payload.context.option !=null){
-		  //recherche dans la base le prix de l'option
+         
+        if(payload.context.option !=null){
+          //recherche dans la base le prix de l'option
                  var query='select prix from option where libelle="'+payload.context.option+'")';
                  db.query(query, function (error, results, fields) {
                  if (error) {
                   console.log(JSON.stringify(error));
                  }
-		payload.context.prixoption = results;
+        payload.context.prixoption = results;
                 });
-		}   
-		    
-		//nombre de chambre défini 
-		if(payload.context.nb_chambre !=null){
+        }   
+            
+        //nombre de chambre défini 
+        if(payload.context.nb_chambre !=null){
                     //montant de la chambre envoyé au chatbot
                     payload.context.total=100;
                 }
@@ -179,24 +181,75 @@ app.post('/webhook/', function (req, res) {
     }
     res.sendStatus(200);
 });
+/* MESSENGER END **************************************************************************************/
 
 
-/*
-app.get('/', function (req, res) {
-    res.json("Votre application fonctionne");
-});*/
+
+/* CLIENT HTML **************************************************************************************/
+function callWatsonClient(payload,res) {
+    console.log(payload);
+    conversation.message(payload, function(err, data) {
+        console.log(data)
+        if (err)
+            return console.log('error:', err);
+        
+        if(data.context != null){
+            contexid = data.context;
+        }
+        //reservation
+        if(data.context.confirmation !=null){
+                
+        //variables de context du chatbot
+                var date_reservation= data.context.date_reservation;
+                var nb_chambres= data.context.nb_chambre;
+                var room_category= data.context.room_category;
+        //requete d'insertion
+               var query='insert into reservation (idC,nbChambres,dateDebut,nbJour,categorie) values(null,'+nb_chambres+',"'+date_reservation+'",'+"null"+',"'+room_category+'")';
+                db.query(query, function (error, results, fields) {
+                if (error) {
+                  console.log(JSON.stringify(error));
+                }
+              });
+
+            }
+        res.send(data);
+        //res.json("{'message':"+data.output.text+"},{'context':"+data.context+"}");
+       }); 
+}
 
 app.post('/message', function (req, res) {
-    message= req.query.id;
-    res.json("Votre application fonctionne"+message);
+       
+     var payload = {
+       workspace_id: myWatsonWorkspace, 
+       input: req.body.input,
+       context: req.body.context || {}
+     }
+
+        if(payload.context.option !=null){
+          //recherche dans la base le prix de l'option
+                 var query='select prix from option where libelle="'+payload.context.option+'")';
+                 db.query(query, function (error, results, fields) {
+                 if (error) {
+                  console.log(JSON.stringify(error));
+                 }
+            payload.context.prixoption = results;
+                });
+        }   
+            
+        //nombre de chambre défini 
+        if(payload.context.nb_chambre !=null){
+                    //montant de la chambre envoyé au chatbot
+                    payload.context.total=100;
+        }
+    callWatsonClient(payload,res);
+    
+
 });
-
 var path = require('path');
-
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });
-
+/* CLIENT HTML END **************************************************************************************/
 
 
 
