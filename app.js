@@ -20,6 +20,10 @@ var myassistantid='ccf70d26-808d-45f2-95b8-7ba16ae8fee1';
 var myFacebookToken ="";
 
 
+
+//https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/ba3e7f27-4e83-4906-86eb-2e206f355592/v2/assistants/1541c493-2a0e-4014-9c08-c27744e4aa08/sessions/551371a1-2e29-473b-b2a4-57130984924c/message?version=2019-02-28
+
+
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 /*var myUsername = process.env.assistant_USERNAME;
