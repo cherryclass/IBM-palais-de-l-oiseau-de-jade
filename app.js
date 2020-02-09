@@ -8,7 +8,7 @@ var mysql  = require('mysql');
 
 //à remplacer **************************************
 var watsonSkillId = "42e1a173-5cb4-4a7a-896f";
-var watsonApiKey = "TlunmL9nO9U8cmdgolAJ6uvRvw1S4ovwQ7";
+var watsonApiKey = "";
 // s'arreter avant /v1
 var watsonLegacyv1WorkspaceURL ="https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/ba3e7f27-4e83-4906-86eb";
 
