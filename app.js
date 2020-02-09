@@ -1,39 +1,61 @@
 var express = require('express');
 var request = require('request');
 var bodyParser = require('body-parser');
-var watson = require('watson-developer-cloud');
+//var watson = require('ibm-watson');
 var mysql  = require('mysql');
-
+const AssistantV2 = require('ibm-watson/assistant/v2');
+const { BasicAuthenticator } = require('ibm-watson/auth');
 
 
 //à remplacer **************************************
-var watsonSkillId = "42e1a173-5cb4-4a7a-896f";
-var watsonApiKey = "TlunmL9nO9U8cmdgolAJ6uvRvw1S4ovwQ7";
+var watsonSkillId = "42e1a173-5cb4-4a7a-896f-f62b97452960";
+var watsonApiKey = "";
 // s'arreter avant /v1
-var watsonLegacyv1WorkspaceURL ="https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/ba3e7f27-4e83-4906-86eb";
+var watsonLegacyv1WorkspaceURL ="https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/ba3e7f27-4e83-4906-86eb-2e206f355592";
 
 var myRDSHost ="database-2.ctdswicaffyc.eu-west-3.rds.amazonaws.com";
 var myRDSLogin ="admin";
-var myRDSPassword ="youhou";
-
+var myRDSPassword ="";
+var myassistantid='ccf70d26-808d-45f2-95b8-7ba16ae8fee1';
 var myFacebookToken ="";
 
 
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
-/*var myUsername = process.env.CONVERSATION_USERNAME;
-var myPassword = process.env.CONVERSATION_PASSWORD;
-var myUrl = process.env.CONVERSATION_URL;*/
+/*var myUsername = process.env.assistant_USERNAME;
+var myPassword = process.env.assistant_PASSWORD;
+var myUrl = process.env.assistant_URL;*/
 var app = express();
 
+
+
+// Assistant Watson V2
+const assistant = new AssistantV2({
+  version: '2019-02-28',
+  authenticator: new BasicAuthenticator({
+    username: 'apikey',
+    password: watsonApiKey,
+  }),
+  url: watsonLegacyv1WorkspaceURL,
+});
+
 // Assistant Watson V1
-var conversation = new watson.AssistantV1({
+/*var assistant = new watson.AssistantV1({
     version :"2018-10-12",
     username: "apikey",
     password: watsonApiKey,
     url: watsonLegacyv1WorkspaceURL,
     
-});
+});*/
+var sessionId="";
+assistant.createSession({
+  assistantId: 'ccf70d26-808d-45f2-95b8-7ba16ae8fee1' })  .then(res => {
+    console.log(JSON.stringify(res, null, 2));
+    sessionId=res.result.session_id;
+    console.log(sessionId);
+  });
+
+
 
 var contexid = "";
 
@@ -67,7 +89,7 @@ app.get('/webhook/', function (req, res) {
 /* MESSENGER **************************************************************************************/
 //appel de Watson Assistant et insertion de la reservation dans Mysql. Puis appel de sendMessage pour envoie vers Messenger
 function callWatson(payload, sender) {
-    conversation.message(payload, function(err, data) {
+    assistant.message(payload, function(err, data) {
         console.log(data)
         if (err)
             return console.log('error:', err);
@@ -189,7 +211,7 @@ app.post('/webhook/', function (req, res) {
 /* CLIENT HTML **************************************************************************************/
 function callWatsonClient(payload,res) {
     console.log(payload);
-    conversation.message(payload, function(err, data) {
+    assistant.message(payload, function(err, data) {
         console.log(data)
         if (err)
             return console.log('error:', err);
@@ -221,10 +243,18 @@ function callWatsonClient(payload,res) {
 app.post('/message', function (req, res) {
        
      var payload = {
-       workspace_id: watsonSkillId, 
+       assistantId: myassistantid, 
        input: req.body.input,
-       context: req.body.context || {}
+       context: req.body.context || {},
+       sessionId: sessionId,
+      
      }
+
+
+
+
+
+
 
         if(payload.context.option !=null){
           //recherche dans la base le prix de l'option
@@ -233,14 +263,14 @@ app.post('/message', function (req, res) {
                  if (error) {
                   console.log(JSON.stringify(error));
                  }
-            payload.context.prixoption = results;
+            payload.sessionId.prixoption = results;
                 });
         }   
             
         //nombre de chambre défini 
         if(payload.context.nb_chambre !=null){
                     //montant de la chambre envoyé au chatbot
-                    payload.context.total=100;
+                    payload.sessionId.total=100;
         }
     callWatsonClient(payload,res);
     
@@ -248,7 +278,7 @@ app.post('/message', function (req, res) {
 });
 app.get('/message', function (req, res) {
        
-     console.log("youhou");
+     console.log("bvoovovo");
     
 
 });
@@ -265,7 +295,7 @@ app.listen(port, host);
 
 
 //Pour tester un appel simple de Watson Assistant
-/*conversation.message({
+/*assistant.message({
   workspace_id: myWorkspace,
   input: {'text': 'reservation'}
 },  function(err, response) {
