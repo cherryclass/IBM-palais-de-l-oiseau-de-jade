@@ -7,17 +7,18 @@ var mysql  = require('mysql');
 
 
 //à remplacer **************************************
-var myWatsonWorkspace = "";
-var myWatsonPassword = "";
+var watsonSkillId = "42e1a173-5cb4-4a7a-896f";
+var watsonApiKey = "TlunmL9nO9U8cmdgolAJ6uvRvw1S4ovwQ7";
+// s'arreter avant /v1
+var watsonLegacyv1WorkspaceURL ="https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/ba3e7f27-4e83-4906-86eb";
 
-var myRDSHost ="";
-var myRDSLogin ="";
-var myRDSPassword ="";
+var myRDSHost ="database-2.ctdswicaffyc.eu-west-3.rds.amazonaws.com";
+var myRDSLogin ="admin";
+var myRDSPassword ="youhou";
 
 var myFacebookToken ="";
 
 
-var myWatsonUrl ="https://gateway-fra.watsonplatform.net/assistant/api";
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 /*var myUsername = process.env.CONVERSATION_USERNAME;
@@ -29,8 +30,8 @@ var app = express();
 var conversation = new watson.AssistantV1({
     version :"2018-10-12",
     username: "apikey",
-    password: myWatsonPassword,
-    url: myWatsonUrl,
+    password: watsonApiKey,
+    url: watsonLegacyv1WorkspaceURL,
     
 });
 
@@ -38,7 +39,7 @@ var contexid = "";
 
 
 // Mysql - MariaDB
-var services = JSON.parse(process.env.VCAP_SERVICES);
+//var services = JSON.parse(process.env.VCAP_SERVICES);
 //var mysql_creds = services['compose-for-mysql'][0].credentials;
 //var res = mysql_creds.uri.split(/\@|:|\//);
 var db = mysql.createConnection({
@@ -147,7 +148,7 @@ app.post('/webhook/', function (req, res) {
             context:contexid
         }
         var payload = {
-            workspace_id: myWatsonWorkspace,            
+            workspace_id: watsonSkillId,            
             input: req.body.input || {}
           };
         if (params) {
@@ -220,7 +221,7 @@ function callWatsonClient(payload,res) {
 app.post('/message', function (req, res) {
        
      var payload = {
-       workspace_id: myWatsonWorkspace, 
+       workspace_id: watsonSkillId, 
        input: req.body.input,
        context: req.body.context || {}
      }
@@ -245,6 +246,12 @@ app.post('/message', function (req, res) {
     
 
 });
+app.get('/message', function (req, res) {
+       
+     console.log("youhou");
+    
+
+});
 var path = require('path');
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
@@ -252,8 +259,9 @@ app.get('/', function (req, res) {
 /* CLIENT HTML END **************************************************************************************/
 
 
-
+console.log("ok");
 app.listen(port, host);
+
 
 
 //Pour tester un appel simple de Watson Assistant
