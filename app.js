@@ -223,7 +223,7 @@ function callWatsonClient(payload,res) {
                   console.log(JSON.stringify(error));
                 }
               });
-
+				data.result.context="";
             }
         res.send(data);
         //res.json("{'message':"+data.output.text+"},{'context':"+data.context+"}");
