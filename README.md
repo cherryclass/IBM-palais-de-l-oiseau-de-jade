@@ -1,5 +1,5 @@
 # IBM-palais-de-l-oiseau-de-jade-nodejs-mariaDB
-ChatBot Watson Assistant,application Nodejs,MariaDB, Messenger
+Assistant virtuel Watson
 
 https://developer.ibm.com/recipes/tutorials/ibm-cloud-5-chatbot-avec-messenger-nodejs-mysql-watson-analytics-watson-studio/
 
