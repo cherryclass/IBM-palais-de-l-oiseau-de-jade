@@ -37,23 +37,22 @@ url: watsonURL,
 
 
 
-
-
-async function  createSession() {
-await assistant.createSession({
-assistantId: '1541c493-2a0e-4014-9c08-c27744e4aa08' })  .then(res => {
+ function  createSession(first) {
+assistant.createSession({
+assistantId: watsonID }).then(res => {
   sessionId=res.result.session_id;
+  
+  if(first){
+   console.log("\x1b[32m%s\x1b[0m","new session "+sessionId);
+  }else{
+	console.log("session id :"+ sessionId);
+	console.log("http://"+host+":"+port);
+  }
+  
 });
+
 }
-var sessionId=createSession().then(res => {
-  console.log("session id :"+ sessionId);
-  console.log("http://"+host+":"+port);
-});
-
-
-
-
-
+createSession();
 
 
 // Mysql - MariaDB
@@ -179,18 +178,16 @@ res.sendStatus(200);
 /* MESSENGER END **************************************************************************************/
 
 
-
 /* CLIENT HTML **************************************************************************************/
 function callWatsonClient(payload,res,messenger) {
 console.log("\x1b[32m%s\x1b[0m",JSON.stringify(payload));
-assistant.message(payload, function(err, data) {
-		if(data == null){
-			createSession().then(res => {
-				payload.sessionId=sessionId;
-				console.log("\x1b[32m%s\x1b[0m","new session "+sessionId);
-			callWatsonClient(payload,res,messenger);
-			return;
-  		});
+assistant.message(payload,function(err, data) {
+	   if(data == null){         
+			createSession(true);
+			var data ={result:{output:{generic:[{text:"nouvelle session, renvoyez le message"}]}}};
+				//payload.sessionId=sessionId;			
+			res.send(data);
+  		
 	}else{
 
 
