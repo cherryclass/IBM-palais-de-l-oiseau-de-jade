@@ -63,9 +63,8 @@
             data: JSON.stringify({"input":{"text":id}, context}),
             success: function (data) {
                 console.log(data)
-                 var rep=data;
-                 context=rep.context;
-                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data.output.text+"</span><br>")
+                 context=data.result.context;
+                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data.result.output.generic[0].text+"</span><br>")
             }
         });
     });
