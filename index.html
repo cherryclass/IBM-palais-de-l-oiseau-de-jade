@@ -52,10 +52,11 @@
 </footer>
 <script>
     $(document).ready(function () {
-    let context="";
+    var context="";
     $('#envoyer').click(function () {
         let id = $('#id').val();
          $('#reponse').prepend(id+"<br>")
+         
         $.ajax({
             type: "POST",
             contentType: 'application/json; charset=utf-8',
@@ -64,7 +65,7 @@
             success: function (data) {
                 console.log(data)
                  context=data.result.context;
-                 $('#reponse').prepend("<span style='color:blue;'>Assitant: "+data.result.output.generic[0].text+"</span><br>")
+                 $('#reponse').prepend("<span style='color:blue;'>"+data.result.output.generic[0].text+"</span><br>")
             }
         });
     });
