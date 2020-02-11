@@ -11,11 +11,11 @@
 		"body-parser": "1.*",
 		"request": "2.*",
 		"htmlparser": "1.*",
-		"watson-developer-cloud": "3.*",
+		"ibm-watson": "*",
 		"mysql": "2.*"
 	},
 	"repository": {},
 	"engines": {
 		"node": "10.*"
-	} 
+	}
 }
