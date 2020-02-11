@@ -37,11 +37,9 @@
        <div class="form-group">
         <div id="reponse">
      </div>     
-</div>
-</div>
+
 
  <br><br>
-
 <footer>
     <div class="container ">
         <div class="row">
@@ -57,7 +55,7 @@
     let context="";
     $('#envoyer').click(function () {
         let id = $('#id').val();
-         $('#reponse').prepend("User: "+id+"<br>")
+         $('#reponse').prepend(id+"<br>")
         $.ajax({
             type: "POST",
             contentType: 'application/json; charset=utf-8',
@@ -66,7 +64,7 @@
             success: function (data) {
                 console.log(data)
                  context=data.result.context;
-                 $('#reponse').prepend("<span style='color:blue;'>Watson: "+data.result.output.generic[0].text+"</span><br>")
+                 $('#reponse').prepend("<span style='color:blue;'>Assitant: "+data.result.output.generic[0].text+"</span><br>")
             }
         });
     });
