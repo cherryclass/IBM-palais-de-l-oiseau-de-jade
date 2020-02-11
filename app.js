@@ -184,7 +184,7 @@ console.log("\x1b[32m%s\x1b[0m",JSON.stringify(payload));
 assistant.message(payload,function(err, data) {
 	   if(data == null){         
 			createSession(true);
-			var data ={result:{output:{generic:[{text:"nouvelle session, renvoyez le message"}]}}};
+			var data ={result:{context:"",output:{generic:[{text:"session expirée, renvoyez le message"}]}}};
 				//payload.sessionId=sessionId;			
 			res.send(data);
   		
@@ -294,20 +294,4 @@ res.sendFile(path.join(__dirname + '/index.html'));
 });
 /* CLIENT HTML END **************************************************************************************/
 
-
-
-
 app.listen(port, host);
-
-
-
-//Pour tester Mysql
-/*
-db.query('SELECT * from reservation', function (error, results, fields) {
-if (error) {
-console.log(JSON.stringify(error));
-} else {
-console.log(JSON.stringify(results));
-}
-});
-*/
