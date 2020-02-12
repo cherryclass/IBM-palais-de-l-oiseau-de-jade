@@ -14,7 +14,7 @@ var watsonID='1541c493-2a0e-4014-9c08-';
 var myRDSHost ="database-2.ctdswicaffyc.eu-west-3.rds.amazonaws.com";
 var myRDSLogin ="admin";
 var myRDSPassword ="";
-
+var myDataBase = "poj";
 var myFacebookToken ="";
 
 
@@ -64,7 +64,7 @@ host: myRDSHost,
 port : 3306,
 user: myRDSLogin,
 password: myRDSPassword,
-database: "poj",
+database: myDataBase,
 debug: false
 });
 
@@ -294,4 +294,20 @@ res.sendFile(path.join(__dirname + '/index.html'));
 });
 /* CLIENT HTML END **************************************************************************************/
 
+
+
+
 app.listen(port, host);
+
+
+
+//Pour tester Mysql
+/*
+db.query('SELECT * from reservation', function (error, results, fields) {
+if (error) {
+console.log(JSON.stringify(error));
+} else {
+console.log(JSON.stringify(results));
+}
+});
+*/
