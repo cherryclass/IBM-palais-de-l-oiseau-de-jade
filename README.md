@@ -10,16 +10,16 @@ https://developer.ibm.com/recipes/tutorials/ibm-cloud-5-chatbot-avec-messenger-n
 
 Mise à jour:
 
-02-20
-Cognos Analytics
-NodeJs sur AWS et en local
-Assistant V2
-Amélioration de l'interface web
-03-19 
-MariaDB sur AWS
-Suppression de la région à la connexion IBM Cloud
-Ajout d'une interface web
-12-18
-Migration vers cloud.ibm.com
-10-18
-Suppression de Watson Analytics
+02-20   
+Cognos Analytics   
+NodeJs sur AWS et en local   
+Assistant V2   
+Amélioration de l'interface web   
+03-19   
+MariaDB sur AWS  
+Suppression de la région à la connexion IBM Cloud   
+Ajout d'une interface web   
+12-18   
+Migration vers cloud.ibm.com   
+10-18   
+Suppression de Watson Analytics   
