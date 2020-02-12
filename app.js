@@ -18,6 +18,7 @@ var myDataBase = "poj";
 var myFacebookToken ="";
 
 
+
 var host = (process.env.VCAP_APP_HOST || 'localhost');
 var port = (process.env.VCAP_APP_PORT || 3000);
 /*var myUsername = process.env.assistant_USERNAME;
@@ -104,81 +105,87 @@ request({
 }
 
 
-//Reception de Messenger et appel de callWatson
+
+
+var context="";
+
+//Messenger
 app.post('/webhook/', function (req, res) {
+
 var text = null;
-messaging_events = req.body.entry[0].messaging;
-for (i = 0; i < messaging_events.length; i++) { 
-  event = req.body.entry[0].messaging[i];
-  sender = event.sender.id;
-
-  if (event.message && event.message.text) {
-      text = event.message.text;
-  }else if (event.postback && !text) {
-      text = event.postback.payload;
-  }else{
-      break;
-  }     
-
-
 var payload ={
-assistantId: watsonID,
-sessionId: sessionId,
-input: {
-message_type: 'text',
-text: text,
-options: {
-  'return_context': true
-}
-},
-context:  {
-'global': {
-  'system': {
-    'user_id': 'my_user_id'
+"assistantId": watsonID,
+"sessionId": sessionId,
+"input": {
+"message_type": 'text',
+"text": text,
+"options": {"return_context": true}},
+"context":{
+"global":{
+  "system": {
+    "user_id": "my_user_id"
       }
 },
-  'skills': {
-  'main skill': {
-    'user_defined': {
-      'option': null
+  "skills": {
+  "main skill": {
+    "user_defined": {
+      "option": null
        }
   }
 }
 }
 };
 
-if(req.body.context !="")
-payload.context=req.body.context;
 
-mesVariables=payload.context.skills['main skill'].user_defined;
+     messaging_events = req.body.entry[0].messaging;
+    for (i = 0; i < messaging_events.length; i++) { 
+        event = req.body.entry[0].messaging[i];
+        sender = event.sender.id;
 
-  if(mesVariables.option !=null){
-    //recherche dans la base le prix de l'option
-           var query='select prix from option where libelle="'+mesVariables.option+'")';
-           db.query(query, function (error, results, fields) {
-           if (error) {
-            console.log(JSON.stringify(error));
-           }
-          mesVariables.prixoption = results;
-          });
-  }   
-      
-  //nombre de chambre défini 
-  if(mesVariables.nb_chambre !=null){
-              //montant de la chambre envoyé au chatbot
-              mesVariables.total=100;
-  }
+        if (event.message && event.message.text) {
+            text = event.message.text;
+        }else if (event.postback && !text) {
+            text = event.postback.payload;
+        }else{
+            break;
+        }   
+       
+       payload.input.text=text;
 
 
-  callWatsonClient(payload,sender,true);
- 
-}
-res.sendStatus(200);
+           console.log("\x1b[34m%s\x1b[0m",JSON.stringify(req.body));
+			if(context !="")
+				payload.context=context;
+
+              
+				mesVariables=payload.context.skills['main skill'].user_defined;
+
+				  if(mesVariables.option !=null){
+				    //recherche dans la base le prix de l'option
+				           var query='select prix from option where libelle="'+mesVariables.option+'")';
+				           db.query(query, function (error, results, fields) {
+				           if (error) {
+				            console.log(JSON.stringify(error));
+				           }
+				          mesVariables.prixoption = results;
+				          });
+				  }   
+				      
+				  //nombre de chambre défini 
+				  if(mesVariables.nb_chambre !=null){
+				              //montant de la chambre envoyé au chatbot
+				              mesVariables.total=100;
+				  }
+
+        callWatsonClient(payload, sender,true);
+    }
+    res.sendStatus(200);
+
 });
-/* MESSENGER END **************************************************************************************/
 
 
-/* CLIENT HTML **************************************************************************************/
+
+//appel de l'assistant Watson
 function callWatsonClient(payload,res,messenger) {
 console.log("\x1b[32m%s\x1b[0m",JSON.stringify(payload));
 assistant.message(payload,function(err, data) {
@@ -196,8 +203,11 @@ assistant.message(payload,function(err, data) {
       return console.log('error:', err);
   
 
-  mesVariables=data.result.context.skills['main skill'].user_defined;
+  
+//pour messenger
+  context=data.result.context;
 
+  mesVariables=data.result.context.skills['main skill'].user_defined;
   //reservation
   if(mesVariables.confirmation !=null){
           
@@ -217,10 +227,10 @@ assistant.message(payload,function(err, data) {
 
 
     if(messenger){
-                var i = 0;
-                while(i < data.result.output.text.length){
-                    sendMessage(sender, data.result.output.text[i++]);
-                }    
+                //var i = 0;
+                //while(i < data.result.output.generic[0].text.length ){
+                    sendMessage(sender, data.result.output.generic[0].text);
+                //}    
     }else{
             res.send(data);
       }
@@ -231,6 +241,8 @@ assistant.message(payload,function(err, data) {
 
 }
 
+
+//client HTML
 app.post('/message', function (req, res) {
 
 var payload ={
@@ -284,30 +296,19 @@ callWatsonClient(payload,res,false);
 
 
 });
+// pour postman 
 app.get('/message', function (req, res) {       
 console.log("Il faut une methode POST");   
 
 });
+
+//page web
 var path = require('path');
 app.get('/', function (req, res) {
 res.sendFile(path.join(__dirname + '/index.html'));
 });
-/* CLIENT HTML END **************************************************************************************/
-
 
 
 
 app.listen(port, host);
 
-
-
-//Pour tester Mysql
-/*
-db.query('SELECT * from reservation', function (error, results, fields) {
-if (error) {
-console.log(JSON.stringify(error));
-} else {
-console.log(JSON.stringify(results));
-}
-});
-*/
