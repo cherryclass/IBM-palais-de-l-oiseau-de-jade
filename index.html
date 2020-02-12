@@ -57,7 +57,7 @@
     $('#envoyer').click(function () {
         let id = $('#id').val();
          $('#reponse').prepend(id+"<br>")
-         
+         $('#id').val('');
         $.ajax({
             type: "POST",
             contentType: 'application/json; charset=utf-8',
